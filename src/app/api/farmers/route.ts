@@ -8,5 +8,10 @@ export async function GET(req: NextRequest) {
   if (district) farmers = farmers.filter((f) => f.district === district);
   if (fpoId) farmers = farmers.filter((f) => f.fpoId === fpoId);
   farmers.sort((a, b) => a.name.localeCompare(b.name));
-  return NextResponse.json({ farmers });
+  // Farmer roster is static during a demo — let the browser reuse it across
+  // page navigations instead of re-hitting Firestore on every mount.
+  return NextResponse.json(
+    { farmers },
+    { headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=300" } },
+  );
 }

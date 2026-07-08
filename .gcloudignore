@@ -1,0 +1,11 @@
+# Web app source upload for Cloud Run — exclude heavy/irrelevant paths.
+.git
+node_modules
+.next
+out
+build
+voice-agent
+*.tsbuildinfo
+npm-debug.log*
+.env*
+!.env.example

@@ -4,6 +4,7 @@
 // selected district's coordinates when geolocation is denied/unavailable.
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui";
+import { useI18n } from "@/lib/i18n";
 
 // Fallback coordinates for the demo districts (used if the district record
 // has no lat/lon of its own).
@@ -13,25 +14,26 @@ const DISTRICT_COORDS: Record<string, { lat: number; lon: number }> = {
   Nashik: { lat: 19.99, lon: 73.79 },
 };
 
-const WMO: Record<number, { label: string; icon: string }> = {
-  0: { label: "Clear sky", icon: "☀️" },
-  1: { label: "Mostly clear", icon: "🌤️" },
-  2: { label: "Partly cloudy", icon: "⛅" },
-  3: { label: "Overcast", icon: "☁️" },
-  45: { label: "Fog", icon: "🌫️" },
-  48: { label: "Fog", icon: "🌫️" },
-  51: { label: "Light drizzle", icon: "🌦️" },
-  53: { label: "Drizzle", icon: "🌦️" },
-  55: { label: "Heavy drizzle", icon: "🌧️" },
-  61: { label: "Light rain", icon: "🌦️" },
-  63: { label: "Rain", icon: "🌧️" },
-  65: { label: "Heavy rain", icon: "🌧️" },
-  80: { label: "Rain showers", icon: "🌧️" },
-  81: { label: "Rain showers", icon: "🌧️" },
-  82: { label: "Violent showers", icon: "⛈️" },
-  95: { label: "Thunderstorm", icon: "⛈️" },
-  96: { label: "Thunderstorm + hail", icon: "⛈️" },
-  99: { label: "Thunderstorm + hail", icon: "⛈️" },
+// WMO code → { icon, translation-key }. Several codes share a key (48→45, etc.).
+const WMO: Record<number, { key: string; icon: string }> = {
+  0: { key: "wx.0", icon: "☀️" },
+  1: { key: "wx.1", icon: "🌤️" },
+  2: { key: "wx.2", icon: "⛅" },
+  3: { key: "wx.3", icon: "☁️" },
+  45: { key: "wx.45", icon: "🌫️" },
+  48: { key: "wx.45", icon: "🌫️" },
+  51: { key: "wx.51", icon: "🌦️" },
+  53: { key: "wx.53", icon: "🌦️" },
+  55: { key: "wx.55", icon: "🌧️" },
+  61: { key: "wx.61", icon: "🌦️" },
+  63: { key: "wx.63", icon: "🌧️" },
+  65: { key: "wx.65", icon: "🌧️" },
+  80: { key: "wx.80", icon: "🌧️" },
+  81: { key: "wx.80", icon: "🌧️" },
+  82: { key: "wx.82", icon: "⛈️" },
+  95: { key: "wx.95", icon: "⛈️" },
+  96: { key: "wx.96", icon: "⛈️" },
+  99: { key: "wx.96", icon: "⛈️" },
 };
 
 interface Current {
@@ -73,6 +75,7 @@ function detectLocation(): Promise<Geo | null> {
 }
 
 export function WeatherWidget({ district, lat, lon }: { district: string; lat?: number; lon?: number }) {
+  const { t } = useI18n();
   const [cur, setCur] = useState<Current | null>(null);
   const [err, setErr] = useState(false);
   const [geo, setGeo] = useState<Geo | null>(null);
@@ -91,7 +94,8 @@ export function WeatherWidget({ district, lat, lon }: { district: string; lat?: 
   // Detected location wins; district coordinates are the fallback.
   const fallback = lat != null && lon != null ? { lat, lon } : DISTRICT_COORDS[district];
   const coords = geo ?? fallback;
-  const place = geo ? `${geo.label} (your location)` : district;
+  const geoLabel = geo && geo.label === "Your location" ? t("wx.yourLocation") : geo?.label;
+  const place = geo ? `${geoLabel} (${t("wx.yourLocationSuffix")})` : district;
 
   useEffect(() => {
     if (!geoDone) return; // wait for the geolocation answer to avoid a double fetch
@@ -111,30 +115,31 @@ export function WeatherWidget({ district, lat, lon }: { district: string; lat?: 
 
   if (err) return null; // weather is a bonus — never block the page on it
 
-  const wx = cur ? WMO[cur.weather_code] ?? { label: "—", icon: "🌡️" } : null;
+  const wx = cur ? WMO[cur.weather_code] ?? { key: "", icon: "🌡️" } : null;
+  const wxLabel = wx?.key ? t(wx.key) : "—";
   return (
-    <Card className="flex items-center gap-4 p-4">
-      <span className="text-4xl">{wx?.icon ?? "🌡️"}</span>
+    <Card className="flex items-center gap-3 p-4 sm:gap-4">
+      <span className="text-3xl sm:text-4xl">{wx?.icon ?? "🌡️"}</span>
       <div className="min-w-0">
         <div className="text-xs font-medium uppercase tracking-wide text-muted">
-          Current weather · {geoDone ? place : "detecting location…"}
+          {t("wx.current")} · {geoDone ? place : t("wx.detecting")}
         </div>
         {cur ? (
           <>
-            <div className="text-xl font-bold">
-              {Math.round(cur.temperature_2m)}°C <span className="text-sm font-medium text-muted">{wx?.label}</span>
+            <div className="text-lg font-bold sm:text-xl">
+              {Math.round(cur.temperature_2m)}°C <span className="text-sm font-medium text-muted">{wxLabel}</span>
             </div>
             <div className="text-xs text-muted">
-              💧 {cur.relative_humidity_2m}% humidity · 🌬️ {Math.round(cur.wind_speed_10m)} km/h
-              {cur.precipitation > 0 && <> · ☔ {cur.precipitation} mm rain now</>}
+              💧 {cur.relative_humidity_2m}% {t("wx.humidity")} · 🌬️ {Math.round(cur.wind_speed_10m)} km/h {t("wx.wind")}
+              {cur.precipitation > 0 && <> · ☔ {t("wx.rainNow", { mm: cur.precipitation })}</>}
             </div>
           </>
         ) : (
-          <div className="text-sm text-muted">Loading live weather…</div>
+          <div className="text-sm text-muted">{t("wx.loading")}</div>
         )}
       </div>
       <span className="ml-auto shrink-0 self-start text-[10px] text-muted/70">
-        {geo ? "📍 GPS · " : ""}Open-Meteo live
+        {geo ? "📍 GPS · " : ""}{t("wx.live")}
       </span>
     </Card>
   );

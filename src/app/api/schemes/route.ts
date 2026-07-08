@@ -5,7 +5,9 @@ import { SCHEMES } from "@/lib/schemes";
 // are deterministic and identical everywhere; the check functions are dropped
 // from the JSON payload (clients import the module directly instead).
 export async function GET() {
-  return NextResponse.json({
-    schemes: SCHEMES.map(({ check: _check, ...rest }) => rest),
-  });
+  // Scheme catalog is immutable (lives in code) — cache it hard.
+  return NextResponse.json(
+    { schemes: SCHEMES.map(({ check: _check, ...rest }) => rest) },
+    { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=3600" } },
+  );
 }

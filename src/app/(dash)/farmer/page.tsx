@@ -14,10 +14,10 @@ import { useI18n } from "@/lib/i18n";
 const LS_KEY = "kisansetu.activeFarmer";
 
 type Tab = "assistant" | "crops" | "schemes";
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: "assistant", label: "AI Assistant", icon: "💬" },
-  { id: "crops", label: "Crop Recommendation", icon: "🌱" },
-  { id: "schemes", label: "Govt Schemes", icon: "🏛️" },
+const TABS: { id: Tab; labelKey: string; icon: string }[] = [
+  { id: "assistant", labelKey: "tab.assistant", icon: "💬" },
+  { id: "crops", labelKey: "tab.crops", icon: "🌱" },
+  { id: "schemes", labelKey: "tab.schemes", icon: "🏛️" },
 ];
 
 export default function FarmerPage() {
@@ -26,7 +26,7 @@ export default function FarmerPage() {
   const [tab, setTab] = useState<Tab>("assistant");
   const [apps, setApps] = useState<Application[]>([]);
   // Chat language follows the global header language switcher.
-  const { lang } = useI18n();
+  const { lang, t } = useI18n();
 
   useEffect(() => {
     getJSON<{ farmers: Farmer[] }>("/api/farmers").then(({ farmers }) => {
@@ -53,35 +53,35 @@ export default function FarmerPage() {
   }
 
   if (!farmer) {
-    return <div className="py-20 text-center text-muted">Loading…</div>;
+    return <div className="py-20 text-center text-muted">{t("common.loading")}</div>;
   }
 
   return (
     <div className="flex flex-col gap-4">
       {/* Top bar: tabs + identity + SMS inbox */}
-      <div className="flex flex-wrap items-center gap-2">
-        <nav className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xl bg-surface p-1 ring-1 ring-border">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <nav className="flex w-full items-center gap-1 overflow-x-auto rounded-xl bg-surface p-1 ring-1 ring-border sm:w-auto">
           {TABS.map((tb) => (
             <button
               key={tb.id}
               onClick={() => setTab(tb.id)}
-              title={tb.label}
-              className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+              title={t(tb.labelKey)}
+              className={`flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition sm:flex-none sm:justify-start sm:py-1.5 ${
                 tab === tb.id ? "bg-primary text-white shadow-sm" : "text-muted hover:text-foreground"
               }`}
             >
               <span>{tb.icon}</span>
-              <span className={tab === tb.id ? "" : "hidden sm:inline"}>{tb.label}</span>
+              <span className={tab === tb.id ? "" : "hidden sm:inline"}>{t(tb.labelKey)}</span>
             </button>
           ))}
         </nav>
-        <div className="ml-auto flex min-w-0 items-center gap-2">
+        <div className="flex items-center gap-2 sm:ml-auto">
           <SmsInbox farmer={farmer} />
           <select
             value={activeId}
             onChange={(e) => pick(e.target.value)}
-            title="Logged-in farmer (demo switcher)"
-            className="min-w-0 max-w-[180px] rounded-lg border border-border bg-surface px-2 py-1.5 text-sm font-medium text-foreground sm:max-w-none"
+            title={t("farmer.switcher")}
+            className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-2 py-2 text-sm font-medium text-foreground sm:flex-none sm:py-1.5"
           >
             {farmers.map((f) => (
               <option key={f.id} value={f.id}>🌾 {f.name} · {f.village}</option>

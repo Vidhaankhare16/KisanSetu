@@ -4,8 +4,10 @@ import { useState } from "react";
 import { postJSON } from "@/lib/client";
 import { useI18n, type Translate } from "@/lib/i18n";
 
-const HELPLINE_DISPLAY = "+91 79714 42493";
-const HELPLINE_TEL = "+917971442493";
+// Dialed in Indian national format (leading 0 STD trunk prefix, no +91): without
+// the 0 the Vobiz DID does not ring from a mobile dialer. Verified working.
+const HELPLINE_DISPLAY = "0 79714 42493";
+const HELPLINE_TEL = "07971442493";
 
 type Cta =
   | { kind: "tel"; label: string; note?: string }
@@ -38,25 +40,33 @@ function buildFeatures(t: Translate): Feature[] {
       cta: { kind: "democall", note: t("guide.f2.note") },
     },
     {
-      overline: "ASK IT",
+      overline: t("guide.ask.over"),
       icon: "💬",
-      title: "One clean AI assistant for every farm question",
-      body: "The Farmer dashboard is a single chat — text, voice or a crop photo, in any language. Two more tabs give an AI crop recommendation (with live weather) and a government scheme eligibility check.",
-      cta: { kind: "link", label: "Open the Farmer dashboard", href: "/farmer" },
+      title: t("guide.ask.title"),
+      body: t("guide.ask.body"),
+      cta: { kind: "link", label: t("guide.ask.cta"), href: "/farmer" },
     },
     {
-      overline: "APPLY IT",
+      overline: t("guide.apply.over"),
       icon: "🤝",
-      title: "FPOs apply for schemes and SMS crop plans",
-      body: "An FPO officer opens a member farmer, sees which schemes they qualify for and applies in one click — then generates a crop plan and sends it to the farmer's phone by SMS (simulated in the browser).",
-      cta: { kind: "link", label: "Open the FPO dashboard", href: "/fpo" },
+      title: t("guide.apply.title"),
+      body: t("guide.apply.body"),
+      cta: { kind: "link", label: t("guide.apply.cta"), href: "/fpo" },
     },
     {
-      overline: "APPROVE IT",
+      // Dry-spell / unpredictable-monsoon SMS alerts (guide.f4.* keys).
+      overline: t("guide.f4.over"),
+      icon: "🌧️",
+      title: t("guide.f4.title"),
+      body: t("guide.f4.body"),
+      cta: { kind: "none", note: t("guide.f4.note") },
+    },
+    {
+      overline: t("guide.approve.over"),
       icon: "✅",
-      title: "Government approves, farmer hears about it instantly",
-      body: "Officials see AI-recommended schemes and FPO applications for every farmer. One click approves and notifies the farmer — by SMS in their inbox, or a real AI voice call in their language.",
-      cta: { kind: "link", label: "Open the Government dashboard", href: "/gov" },
+      title: t("guide.approve.title"),
+      body: t("guide.approve.body"),
+      cta: { kind: "link", label: t("guide.approve.cta"), href: "/gov" },
     },
   ];
 }
@@ -123,15 +133,15 @@ export function StarterGuide({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm sm:p-6"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-t-3xl border border-[color:var(--color-cream-border)] bg-[color:var(--color-cream)] shadow-2xl sm:rounded-3xl"
+        className="max-h-[88dvh] w-full max-w-lg overflow-y-auto rounded-3xl border border-[color:var(--color-cream-border)] bg-[color:var(--color-cream)] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Body */}
-        <div className="px-7 pb-6 pt-8 text-center">
+        <div className="px-5 pb-5 pt-6 text-center sm:px-8 sm:pb-6 sm:pt-7">
           <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">
             {t("guide.welcome")}
           </div>
@@ -141,20 +151,20 @@ export function StarterGuide({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* Icon medallion */}
-          <div className="mx-auto mt-6 grid h-20 w-20 place-items-center rounded-full bg-white/70 text-4xl shadow-inner ring-1 ring-[color:var(--color-cream-border)]">
+          <div className="mx-auto mt-4 grid h-16 w-16 place-items-center rounded-full bg-white/70 text-3xl shadow-inner ring-1 ring-[color:var(--color-cream-border)] sm:mt-5 sm:h-20 sm:w-20 sm:text-4xl">
             {f.icon}
           </div>
 
-          <div className="mt-5 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
+          <div className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
             {t("guide.step", { i: i + 1, n })} · {f.overline}
           </div>
-          <h2 className="mt-2 font-serif text-3xl font-medium leading-tight text-foreground">
+          <h2 className="mt-1.5 font-serif text-[1.6rem] font-medium leading-tight text-foreground sm:text-3xl">
             {f.title}
           </h2>
-          <p className="mx-auto mt-3 max-w-md text-[15px] leading-relaxed text-muted">{f.body}</p>
+          <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-muted sm:text-[15px]">{f.body}</p>
 
           {/* CTA */}
-          <div className="mt-6">
+          <div className="mt-5">
             {f.cta.kind === "tel" && (
               <a
                 href={`tel:${HELPLINE_TEL}`}
@@ -173,12 +183,12 @@ export function StarterGuide({ onClose }: { onClose: () => void }) {
               </Link>
             )}
             {f.cta.kind === "democall" && <DemoCallBox />}
-            {f.cta.note && <p className="mt-3 text-xs text-muted">{f.cta.note}</p>}
+            {f.cta.note && <p className="mx-auto mt-2.5 max-w-md text-xs text-muted">{f.cta.note}</p>}
           </div>
         </div>
 
         {/* Footer nav */}
-        <div className="flex items-center justify-between border-t border-[color:var(--color-cream-border)] px-6 py-4">
+        <div className="flex items-center justify-between border-t border-[color:var(--color-cream-border)] px-5 py-3.5 sm:px-6">
           <button
             onClick={onClose}
             className="text-sm font-medium uppercase tracking-wide text-muted hover:text-foreground"

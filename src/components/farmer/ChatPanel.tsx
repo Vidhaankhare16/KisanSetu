@@ -14,15 +14,9 @@ type Msg =
   | { role: "farmer"; text?: string; photoUrl?: string; at: number }
   | { role: "ai"; text: string; dx?: Diagnosis | null; ticket?: boolean; error?: boolean; at: number };
 
-const SUGGESTIONS = [
-  "Which fertilizer should I use this month?",
-  "My crop leaves are turning yellow — what should I do?",
-  "When should I irrigate this week?",
-  "मंडी में अच्छा भाव कैसे मिलेगा?",
-];
-
 export function ChatPanel({ farmer, lang }: { farmer: Farmer; lang: Lang }) {
   const { t } = useI18n();
+  const SUGGESTIONS = [t("chat.sug1"), t("chat.sug2"), t("chat.sug3"), t("chat.sug4")];
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [attachment, setAttachment] = useState<ImagePayload | null>(null);
@@ -32,8 +26,10 @@ export function ChatPanel({ farmer, lang }: { farmer: Farmer; lang: Lang }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { listening, supported, listen, stop, speak } = useSpeech(lang);
 
-  // Keep the newest message (or the thinking spinner) in view.
+  // Keep the newest message (or the thinking spinner) in view — but never on the
+  // empty welcome screen, where scrolling to the bottom clips the greeting.
   useEffect(() => {
+    if (msgs.length === 0) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [msgs, busy]);
 
@@ -100,7 +96,7 @@ export function ChatPanel({ farmer, lang }: { farmer: Farmer; lang: Lang }) {
 
   return (
     <div
-      className="flex h-[calc(100vh-13.5rem)] min-h-[480px] flex-col"
+      className="flex h-[calc(100dvh-17rem)] min-h-[420px] flex-col"
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => { e.preventDefault(); e.dataTransfer.files?.[0] && attach(e.dataTransfer.files[0]); }}
     >
@@ -108,18 +104,18 @@ export function ChatPanel({ farmer, lang }: { farmer: Farmer; lang: Lang }) {
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-2 py-4">
           {msgs.length === 0 && (
-            <div className="mt-[12vh] text-center">
-              <div className="text-4xl">🌾</div>
-              <h1 className="mt-3 text-3xl font-bold">
-                Namaste, <span className="text-primary">{firstName}</span>
+            <div className="mt-6 text-center sm:mt-[9vh]">
+              <div className="text-3xl sm:text-4xl">🌾</div>
+              <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl">
+                {t("chat.namaste")} <span className="text-primary">{firstName}</span>
               </h1>
-              <p className="mt-2 text-muted">
-                Ask anything about your farm — crops, pests, irrigation, prices. Any language, text, voice or photo.
+              <p className="mx-auto mt-2 max-w-md text-sm text-muted sm:text-base">
+                {t("chat.emptySub")}
               </p>
               <div className="mx-auto mt-6 grid max-w-xl gap-2 sm:grid-cols-2">
                 {SUGGESTIONS.map((s) => (
                   <button key={s} onClick={() => send(s)}
-                    className="rounded-2xl border border-border bg-surface px-4 py-3 text-left text-sm text-foreground/90 transition hover:border-primary/40 hover:bg-primary-soft/40">
+                    className="rounded-2xl border border-border bg-surface px-4 py-3 text-left text-sm text-foreground/90 transition active:scale-[0.99] hover:border-primary/40 hover:bg-primary-soft/40">
                     {s}
                   </button>
                 ))}
@@ -184,7 +180,7 @@ export function ChatPanel({ farmer, lang }: { farmer: Farmer; lang: Lang }) {
             }}
             rows={1}
             placeholder={
-              listening ? t("chat.listening") : attachment ? t("chat.captionPlaceholder") : "Ask Kisan Mitra…"
+              listening ? t("chat.listening") : attachment ? t("chat.captionPlaceholder") : t("chat.ask")
             }
             className="max-h-32 min-w-0 flex-1 resize-none bg-transparent px-1 py-2 text-sm outline-none placeholder:text-muted/70"
           />
@@ -213,7 +209,7 @@ export function ChatPanel({ farmer, lang }: { farmer: Farmer; lang: Lang }) {
           </button>
         </div>
         <p className="mt-1.5 text-center text-[11px] text-muted/70">
-          Kisan Mitra can make mistakes — critical doses are confirmed by your Rythu Seva Kendra.
+          {t("chat.disclaimer")}
         </p>
       </div>
     </div>

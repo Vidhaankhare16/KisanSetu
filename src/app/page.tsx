@@ -4,7 +4,9 @@ import { StarterGuide } from "@/components/StarterGuide";
 import { useAutoGuide } from "@/lib/useAutoGuide";
 import { useI18n, LangSwitcher } from "@/lib/i18n";
 
-const DEMO_NUMBER = "+91 79714 42493"; // KisanSetu helpline (Vobiz DID)
+// National format with leading 0 STD prefix — the Vobiz DID only rings when dialed
+// with the 0 (not as +91…). Keep in sync with HELPLINE_DISPLAY in StarterGuide.tsx.
+const DEMO_NUMBER = "0 79714 42493"; // KisanSetu helpline (Vobiz DID)
 
 const ROLES = [
   { href: "/farmer", icon: "🌾", labelKey: "nav.farmer", descKey: "home.farmerDesc", tone: "bg-primary-soft" },
@@ -23,12 +25,12 @@ export default function Home() {
         {/* Hero */}
         <div className="flex flex-col items-start gap-6">
           <div className="flex w-full items-center gap-2">
-            <div className="flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted">
-              <span className="h-2 w-2 rounded-full bg-primary" /> {t("home.badge")}
+            <div className="flex min-w-0 items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-primary" /> <span className="truncate">{t("home.badge")}</span>
             </div>
-            <div className="ml-auto"><LangSwitcher /></div>
+            <div className="ml-auto shrink-0"><LangSwitcher /></div>
           </div>
-          <h1 className="max-w-3xl text-4xl font-bold leading-tight text-foreground sm:text-5xl">
+          <h1 className="max-w-3xl text-3xl font-bold leading-tight text-foreground sm:text-5xl">
             {t("home.heroA")}{" "}
             <span className="text-primary">{t("home.heroB")}</span> {t("home.heroC")}
           </h1>

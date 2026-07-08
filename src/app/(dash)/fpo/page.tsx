@@ -112,19 +112,19 @@ export default function FpoPage() {
     <div className="flex flex-col gap-4">
       {/* Header: FPO picker */}
       <Card className="flex flex-wrap items-center gap-4 p-4">
-        <span className="grid h-12 w-12 place-items-center rounded-xl bg-accent-soft text-2xl">🤝</span>
-        <div>
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent-soft text-2xl">🤝</span>
+        <div className="min-w-0 flex-1">
           <div className="text-xs font-medium uppercase tracking-wide text-muted">FPO (Farmer Producer Organisation)</div>
           <select
             value={fpoId}
             onChange={(e) => setFpoId(e.target.value)}
-            className="mt-0.5 rounded-lg border border-border bg-surface px-2 py-1 text-lg font-bold"
+            className="mt-0.5 w-full max-w-full rounded-lg border border-border bg-surface px-2 py-1 text-base font-bold sm:text-lg"
           >
             {fpos.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
           </select>
           {fpo && <div className="mt-0.5 text-xs text-muted">{fpo.district} · Officer: {fpo.staff}</div>}
         </div>
-        <div className="ml-auto max-w-xs text-right text-xs text-muted">
+        <div className="w-full text-xs text-muted sm:ml-auto sm:max-w-xs sm:text-right">
           Pick a member farmer, apply for schemes on their behalf, and SMS them their crop plan.
         </div>
       </Card>

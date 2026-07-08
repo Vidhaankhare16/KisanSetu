@@ -8,6 +8,7 @@ import { getJSON, postJSON } from "@/lib/client";
 import type { CropPlan, District, Farmer, SoilCard } from "@/lib/types";
 import { Card, Button, Spinner, Badge } from "@/components/ui";
 import { WeatherWidget } from "@/components/WeatherWidget";
+import { useI18n } from "@/lib/i18n";
 
 const SOILS = ["Sandy Loam", "Clay Loam", "Red Soil", "Black Soil"];
 const WATER = ["Rainfed", "Irrigated", "Mixed"];
@@ -54,6 +55,7 @@ export function CropPlanner({
   showWeather?: boolean;
   onPlan?: (plan: CropPlan) => void;
 }) {
+  const { t } = useI18n();
   const [districts, setDistricts] = useState<District[]>([]);
   const [district, setDistrict] = useState(farmer?.district ?? "");
   const [soil, setSoil] = useState(SOIL_FROM_FARMER[farmer?.soilType ?? ""] ?? SOILS[0]);
@@ -95,7 +97,7 @@ export function CropPlanner({
       setPlan(plan);
       onPlan?.(plan);
     } catch {
-      setError("Could not generate a recommendation. Please try again.");
+      setError(t("cp.error"));
     } finally {
       setBusy(false);
     }
@@ -111,27 +113,27 @@ export function CropPlanner({
 
       {/* Input form — fields mirror the SIH advisory form */}
       <Card className="p-4">
-        <div className="mb-3 text-sm font-semibold">Farm details</div>
+        <div className="mb-3 text-sm font-semibold">{t("cp.farmDetails")}</div>
         <div className="grid gap-3 sm:grid-cols-3">
           <label className="flex flex-col gap-1 text-xs font-medium text-muted">
-            District
+            {t("cp.district")}
             <select value={district} onChange={(e) => setDistrict(e.target.value)}
               className="rounded-lg border border-border bg-surface px-2 py-2 text-sm font-medium text-foreground">
               {districts.map((d) => <option key={d.id} value={d.name}>{d.name} ({d.state})</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1 text-xs font-medium text-muted">
-            Soil type
+            {t("cp.soil")}
             <select value={soil} onChange={(e) => setSoil(e.target.value)}
               className="rounded-lg border border-border bg-surface px-2 py-2 text-sm font-medium text-foreground">
-              {SOILS.map((s) => <option key={s}>{s}</option>)}
+              {SOILS.map((s) => <option key={s} value={s}>{t(`soilopt.${s}`)}</option>)}
             </select>
           </label>
           <label className="flex flex-col gap-1 text-xs font-medium text-muted">
-            Water source
+            {t("cp.water")}
             <select value={water} onChange={(e) => setWater(e.target.value)}
               className="rounded-lg border border-border bg-surface px-2 py-2 text-sm font-medium text-foreground">
-              {WATER.map((w) => <option key={w}>{w}</option>)}
+              {WATER.map((w) => <option key={w} value={w}>{t(`wateropt.${w}`)}</option>)}
             </select>
           </label>
         </div>
@@ -139,45 +141,45 @@ export function CropPlanner({
         {/* Soil health card (optional, improves fertilizer accuracy) */}
         <div className="mt-4 rounded-xl bg-background p-3">
           <div className="text-xs font-medium text-muted">
-            Do you have a Soil Health Card? <span className="text-muted/70">(more accurate fertilizer advice)</span>
+            {t("cp.hasCardQ")} <span className="text-muted/70">{t("cp.hasCardHint")}</span>
           </div>
-          <div className="mt-2 flex gap-2">
-            <Button size="sm" variant={hasCard === true ? "primary" : "ghost"} onClick={() => setHasCard(true)}>Yes</Button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" variant={hasCard === true ? "primary" : "ghost"} onClick={() => setHasCard(true)}>{t("cp.yes")}</Button>
             <Button size="sm" variant={hasCard === false || hasCard === null ? "primary" : "ghost"} onClick={() => setHasCard(false)}>
-              No — use district averages
+              {t("cp.noAvg")}
             </Button>
           </div>
           {hasCard && (
             <p className="mt-2 text-[11px] text-muted">
-              Typical values are shown in grey — type your card&apos;s numbers over them; any field left blank uses the typical value.
+              {t("cp.cardHint")}
             </p>
           )}
           {hasCard && (
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
               <label className="flex flex-col gap-1 text-xs font-medium text-muted">
-                Land type
+                {t("cp.landType")}
                 <select value={card.landType}
                   onChange={(e) => setCard({ ...card, landType: e.target.value as SoilCard["landType"] })}
                   className="rounded-lg border border-border bg-surface px-2 py-2 text-sm text-foreground">
-                  <option value="upland">Upland</option>
-                  <option value="midland">Midland</option>
-                  <option value="lowland">Lowland</option>
+                  <option value="upland">{t("cp.upland")}</option>
+                  <option value="midland">{t("cp.midland")}</option>
+                  <option value="lowland">{t("cp.lowland")}</option>
                 </select>
               </label>
               {(
                 [
-                  ["nitrogen", "Nitrogen (kg/ha)"],
-                  ["phosphorus", "Phosphorus (kg/ha)"],
-                  ["potassium", "Potassium (kg/ha)"],
-                  ["organicCarbon", "Organic carbon (%)"],
-                  ["electricalConductivity", "Electrical conductivity (dS/m)"],
-                  ["pH", "Soil pH"],
-                  ["boron", "Boron (ppm)"],
-                  ["sulphur", "Sulphur (ppm)"],
+                  ["nitrogen", "cp.n"],
+                  ["phosphorus", "cp.p"],
+                  ["potassium", "cp.k"],
+                  ["organicCarbon", "cp.oc"],
+                  ["electricalConductivity", "cp.ec"],
+                  ["pH", "cp.ph"],
+                  ["boron", "cp.boron"],
+                  ["sulphur", "cp.sulphur"],
                 ] as const
-              ).map(([key, label]) => (
+              ).map(([key, labelKey]) => (
                 <label key={key} className="flex flex-col gap-1 text-xs font-medium text-muted">
-                  {label}
+                  {t(labelKey)}
                   <input
                     type="number"
                     value={card[key] || ""}
@@ -193,7 +195,7 @@ export function CropPlanner({
 
         <div className="mt-4 flex items-center gap-3">
           <Button onClick={generate} disabled={busy || !district}>
-            {busy ? "Analysing soil, weather & markets…" : plan ? "Regenerate recommendation" : "Get crop recommendation"}
+            {busy ? t("cp.analysing") : plan ? t("cp.regenerate") : t("cp.get")}
           </Button>
           {busy && <Spinner />}
           {error && <span className="text-sm text-danger">{error}</span>}
@@ -206,6 +208,7 @@ export function CropPlanner({
 }
 
 export function PlanView({ plan }: { plan: CropPlan }) {
+  const { t } = useI18n();
   const fmt = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
   return (
     <Card className="overflow-hidden">
@@ -215,7 +218,7 @@ export function PlanView({ plan }: { plan: CropPlan }) {
           <span className="text-3xl">🌱</span>
           <div>
             <div className="text-xs font-semibold uppercase tracking-wide text-primary-dark">
-              Best crop for your farm · {plan.inputs.season} season
+              {t("cp.bestCrop", { season: plan.inputs.season })}
             </div>
             <div className="text-2xl font-bold">
               {plan.cropName} <span className="text-base font-medium text-muted">({plan.localName})</span>
@@ -232,31 +235,31 @@ export function PlanView({ plan }: { plan: CropPlan }) {
       <div className="grid gap-5 p-5 lg:grid-cols-2">
         {/* Economics */}
         <div>
-          <div className="mb-2 text-sm font-semibold">Economics (per acre)</div>
+          <div className="mb-2 text-sm font-semibold">{t("cp.economics")}</div>
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="rounded-xl bg-danger-soft p-3">
-              <div className="text-xs text-muted">Input cost</div>
-              <div className="text-lg font-bold text-danger">{fmt(plan.economics.cost)}</div>
+              <div className="text-xs text-muted">{t("cp.inputCost")}</div>
+              <div className="text-base font-bold text-danger sm:text-lg">{fmt(plan.economics.cost)}</div>
             </div>
             <div className="rounded-xl bg-info-soft p-3">
-              <div className="text-xs text-muted">Revenue</div>
-              <div className="text-lg font-bold text-info">{fmt(plan.economics.revenue)}</div>
+              <div className="text-xs text-muted">{t("cp.revenue")}</div>
+              <div className="text-base font-bold text-info sm:text-lg">{fmt(plan.economics.revenue)}</div>
             </div>
             <div className="rounded-xl bg-primary-soft p-3">
-              <div className="text-xs text-muted">Net profit</div>
-              <div className="text-lg font-bold text-primary-dark">{fmt(plan.economics.netProfit)}</div>
+              <div className="text-xs text-muted">{t("cp.netProfit")}</div>
+              <div className="text-base font-bold text-primary-dark sm:text-lg">{fmt(plan.economics.netProfit)}</div>
             </div>
           </div>
           <p className="mt-2 text-xs text-muted">{plan.economics.comparisonText}</p>
 
-          <div className="mb-2 mt-4 text-sm font-semibold">Shopping list</div>
+          <div className="mb-2 mt-4 text-sm font-semibold">{t("cp.shopping")}</div>
           <ul className="space-y-1.5">
             {plan.shoppingList.map((s, i) => (
               <li key={i} className="flex items-start gap-2 text-sm"><span>🛒</span>{s}</li>
             ))}
           </ul>
 
-          <div className="mb-2 mt-4 text-sm font-semibold">Also worth considering</div>
+          <div className="mb-2 mt-4 text-sm font-semibold">{t("cp.alsoConsider")}</div>
           <div className="space-y-1.5">
             {plan.alternatives.map((a, i) => (
               <div key={i} className="rounded-lg bg-background px-3 py-2 text-sm">
@@ -268,7 +271,7 @@ export function PlanView({ plan }: { plan: CropPlan }) {
 
         {/* Timeline */}
         <div>
-          <div className="mb-2 text-sm font-semibold">Cultivation timeline</div>
+          <div className="mb-2 text-sm font-semibold">{t("cp.timeline")}</div>
           <ol className="relative space-y-3 border-l-2 border-primary/30 pl-4">
             {plan.timeline.map((tItem, i) => (
               <li key={i} className="relative">

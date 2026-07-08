@@ -39,10 +39,15 @@
   --font-serif: var(--font-newsreader);
 }
 
+html {
+  -webkit-text-size-adjust: 100%; /* stop mobile Safari auto-inflating text */
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden; /* guard against accidental horizontal scroll on phones */
 }
 
 /* Subtle Ashoka-chakra-inspired top accent stripe used on the app shell */

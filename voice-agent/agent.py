@@ -511,6 +511,25 @@ async def entrypoint(ctx: JobContext) -> None:
             if attempt == 2:
                 raise
     if mode == "notify":
+        # Outbound: the room + agent are created and session.start() runs BEFORE the
+        # callee's phone is answered (SIP dialed with wait_until_answered=False). If we
+        # greet now, the whole message plays into a ringing/empty line and the judge —
+        # who picks up a second or two later — hears only silence ("call connects but
+        # nothing is heard"). Wait for the SIP participant to join AND for the call to
+        # actually be answered, then greet into a live line. Inbound path is untouched.
+        participant = await ctx.wait_for_participant()
+        # SIP participants appear in the room while still ringing; sip.callStatus flips
+        # to "active" only on answer. Poll until active, bounded so an unanswered/rejected
+        # call can't hang the job forever (falls through and the room is torn down anyway).
+        answer_deadline = time.monotonic() + 60.0
+        while time.monotonic() < answer_deadline:
+            status = participant.attributes.get("sip.callStatus")
+            if status in ("active", None):  # active = answered; None = non-SIP/local peer
+                break
+            await asyncio.sleep(0.2)
+        # Tiny beat so the audio path is fully up before the first syllable, mirroring the
+        # inbound grace window — avoids clipping "Namaste" on some carriers.
+        await asyncio.sleep(0.3)
         await session.generate_reply()
     else:
         # Callers reflexively say "hello?" the instant they hear the line open. If the

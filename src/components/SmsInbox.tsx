@@ -5,10 +5,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getJSON } from "@/lib/client";
 import type { Farmer, SmsMessage } from "@/lib/types";
+import { useI18n } from "@/lib/i18n";
 
 const SEEN_KEY = "kisansetu.smsSeen"; // last-seen timestamp per farmer
 
 export function SmsInbox({ farmer }: { farmer: Farmer }) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<SmsMessage[]>([]);
   const [seenAt, setSeenAt] = useState(0);
@@ -44,10 +46,10 @@ export function SmsInbox({ farmer }: { farmer: Farmer }) {
       <button
         onClick={() => { setOpen(true); markSeen(); }}
         className="relative flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted hover:text-foreground"
-        title="SMS inbox (simulated)"
+        title={t("sms.inboxTitle")}
       >
         <span>📱</span>
-        <span className="hidden sm:inline">SMS</span>
+        <span className="hidden sm:inline">{t("sms.label")}</span>
         {unread > 0 && (
           <span className="absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-danger px-1 text-[10px] font-bold text-white">
             {unread}
@@ -64,15 +66,15 @@ export function SmsInbox({ farmer }: { farmer: Farmer }) {
           >
             <div className="flex items-center gap-2 bg-neutral-800 px-4 py-2 text-white">
               <span>📱</span>
-              <div className="text-sm font-semibold">Messages</div>
+              <div className="text-sm font-semibold">{t("sms.messages")}</div>
               <div className="ml-auto text-[10px] opacity-70">{farmer.phone}</div>
               <button onClick={() => setOpen(false)} className="ml-2 text-white/80 hover:text-white">✕</button>
             </div>
             <div className="flex-1 space-y-3 overflow-y-auto p-3">
               {messages.length === 0 && (
                 <div className="mt-16 text-center text-sm text-muted">
-                  No messages yet.<br />
-                  <span className="text-xs">SMS sent by your FPO or the government will appear here.</span>
+                  {t("sms.empty")}<br />
+                  <span className="text-xs">{t("sms.emptyHint")}</span>
                 </div>
               )}
               {messages.map((m) => (
@@ -88,7 +90,7 @@ export function SmsInbox({ farmer }: { farmer: Farmer }) {
               ))}
             </div>
             <div className="border-t border-border bg-surface px-3 py-2 text-center text-[10px] text-muted">
-              Simulated SMS — in production this is delivered by an SMS gateway.
+              {t("sms.foot")}
             </div>
           </div>
         </div>
