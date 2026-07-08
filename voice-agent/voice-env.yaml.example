@@ -1,0 +1,15 @@
+# Cloud Run env file — copy to voice-env.yaml (gitignored), fill with ROTATED
+# credentials, then deploy with --env-vars-file voice-env.yaml.
+LIVEKIT_URL: "wss://your-project.livekit.cloud"
+LIVEKIT_API_KEY: ""
+LIVEKIT_API_SECRET: ""
+GOOGLE_API_KEY: ""
+GEMINI_VOICE: "Puck"
+VOBIZ_SIP_HOST: "xxxx.sip.vobiz.ai"
+VOBIZ_PHONE_NUMBER: "+91XXXXXXXXXX"
+VOBIZ_USERNAME: ""
+VOBIZ_PASSWORD: ""
+SIP_OUTBOUND_TRUNK_ID: "ST_xxxx"
+APP_URL: "https://your-kisan-alert.run.app"
+AGENT_NAME: "kisan-voice"
+NOTIFY_SECRET: "long-random-string"

@@ -1,0 +1,7 @@
+.venv/
+.env
+voice-env.yaml
+__pycache__/
+*.pyc
+*.log
+README.md

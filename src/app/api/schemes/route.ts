@@ -1,0 +1,11 @@
+import { NextResponse } from "next/server";
+import { SCHEMES } from "@/lib/schemes";
+
+// Scheme catalog now lives in code (src/lib/schemes.ts) so eligibility rules
+// are deterministic and identical everywhere; the check functions are dropped
+// from the JSON payload (clients import the module directly instead).
+export async function GET() {
+  return NextResponse.json({
+    schemes: SCHEMES.map(({ check: _check, ...rest }) => rest),
+  });
+}

@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
+/* ---- KisanSetu design tokens: calm government-grade agri palette ---- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f4f6f2;      /* warm off-white */
+  --surface: #ffffff;
+  --foreground: #14210b;      /* deep ink-green */
+  --muted: #5b6b52;
+  --border: #e2e7dc;
+  --primary: #15803d;         /* agri green */
+  --primary-dark: #14532d;
+  --primary-soft: #dcfce7;
+  --accent: #ea7317;          /* saffron */
+  --accent-soft: #fdecd8;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --info: #1d4ed8;
+  --info-soft: #dbeafe;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-cream: #faf6ec;
+  --color-cream-border: #ece3d0;
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-serif: var(--font-newsreader);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Subtle Ashoka-chakra-inspired top accent stripe used on the app shell */
+.gov-stripe {
+  background: linear-gradient(90deg, var(--accent) 0%, #ffffff 50%, var(--primary) 100%);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+/* thin scrollbars for the dense dashboards */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }

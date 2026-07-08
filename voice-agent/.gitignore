@@ -1,0 +1,10 @@
+# Secrets — never commit filled env files.
+.env
+voice-env.yaml
+.venv/
+__pycache__/
+*.pyc
+*.log
+*.log.*
+call_metrics/
+KMS/

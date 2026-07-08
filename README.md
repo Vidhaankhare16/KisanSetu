@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kisan Alert — Smart Water, Crop & Advisory System
 
-## Getting Started
+Voice + SMS agricultural intelligence for small and marginal farmers, with a
+government-grade dashboard and three demo roles: **Farmer · FPO · Government**.
+Built for the GCP Hackathon (Track 4) on Gemini, Firestore and Cloud Run.
 
-First, run the development server:
+## What it does
+
+1. **Call-in helpline** — a farmer dials the +91 number; Gemini Live answers in
+   their language, recognizes them by phone number, and logs the query.
+2. **In-app multimodal chat** — voice, text, and crop-photo disease diagnosis
+   (Gemini), personalized to the farmer's profile.
+3. **Government scheme workflow** — AI-matched schemes per farmer; **Approve &
+   Call** rings the farmer and explains the scheme, with an RSK follow-up ticket.
+4. **Proactive dry-spell alerts** — forecast + crop/soil → localized SMS (and
+   voice calls for critical events) to every farmer in a district.
+5. **My Kisan Report** — Gemini writes a plain-language advisory (crops, water
+   plan, risks) plus matched schemes; surfaced in the Government view.
+
+No auth — a role switcher lets judges jump between Farmer / FPO / Government;
+all roles share the same Firestore data live.
+
+## Stack
+
+- **Next.js (App Router) + Tailwind** on Cloud Run (`min=0`)
+- **Firestore** (Admin SDK, server-side only) — farmers, queries, reports, tickets, alerts, schemes, districts
+- **Gemini via Vertex AI** (ADC — no API key) — diagnosis, advisories, reports, alert copy
+- **Voice service** (`voice-agent/`) — LiveKit + Gemini Live + Vobiz +91 SIP; optional,
+  gated behind `VOICE_AGENT_URL` (log-only fallback when unset)
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Prereqs: Node 20+, gcloud CLI authenticated to the GCP project
+gcloud auth application-default login
+gcloud config set project causal-galaxy-415009
+
+npm install
+npx tsx scripts/seed.ts     # seed districts, schemes, FPOs, farmers, sample activity
+npm run dev                 # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` (already present; no secrets needed for the app itself):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+GOOGLE_CLOUD_PROJECT=causal-galaxy-415009
+VERTEX_LOCATION=us-central1
+GEMINI_MODEL=gemini-2.5-flash
+# Optional — only when the voice service is deployed:
+# VOICE_AGENT_URL=https://kisan-voice-….run.app
+# NOTIFY_SECRET=<same secret as the voice service>
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy (Cloud Run)
 
-## Learn More
+```bash
+gcloud run deploy kisan-alert \
+  --source . --region us-central1 --project causal-galaxy-415009 \
+  --allow-unauthenticated --min-instances 0 \
+  --set-env-vars "GOOGLE_CLOUD_PROJECT=causal-galaxy-415009,VERTEX_LOCATION=us-central1,GEMINI_MODEL=gemini-2.5-flash"
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Phone calls (optional, kept ready)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Everything phone-related lives in [voice-agent/](voice-agent/) with its own
+README: rotate credentials, fill `.env`, run `setup_trunks.py`, deploy, then set
+`VOICE_AGENT_URL` + `NOTIFY_SECRET` on this app. Until then, every "call" action
+works in log-only demo mode.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Demo script (~5 min)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Land on the home page → starter guide auto-opens.
+2. **Government** → open a farmer → AI-matched scheme → **Approve & Call**
+   (rings live once voice is wired; logs otherwise).
+3. Judge dials the +91 helpline → asks a crop question (inbound; warm up first).
+4. **Farmer** → upload a diseased-leaf photo → diagnosis; low confidence
+   auto-creates an RSK ticket visible in the Government queue.
+5. **Farmer** → generate **My Kisan Report** → crop plan + matched schemes.
+6. **Government** → trigger a dry-spell alert for Anantapur → SMS/calls queue.
