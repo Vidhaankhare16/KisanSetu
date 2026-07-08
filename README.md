@@ -1,4 +1,4 @@
-# Kisan Alert — Smart Water, Crop & Advisory System
+# KisanSetu — Smart Water, Crop & Advisory System
 
 Voice + SMS agricultural intelligence for small and marginal farmers, with a
 government-grade dashboard and three demo roles: **Farmer · FPO · Government**.
