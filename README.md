@@ -4,6 +4,7 @@
 
 Built for the **Google Cloud Hackathon · Track 4** on Gemini, Vertex AI, Firestore and Cloud Run.
 Persona: *Kisan Mitra* ("the farmer's friend").
+Video walkthrough - https://drive.google.com/file/d/1Ze1ZlS-lzKgXnJ6CLV6_YBOYZZSDWEby/view?usp=drive_link
 
 <p>
 <a href="https://kisan-setu-822987556610.us-central1.run.app"><img alt="Live app" src="https://img.shields.io/badge/Live_App-kisan--setu.run.app-2e7d32?style=for-the-badge"></a>
