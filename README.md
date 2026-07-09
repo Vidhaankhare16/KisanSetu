@@ -26,7 +26,7 @@ The people who need this advice most are exactly the ones who **can't reach a da
 
 | Track-4 requirement | What KisanSetu does | Where |
 |---|---|---|
-| **1 · Smart crop recommendation engine** | A **3-agent Gemini pipeline** turns a farmer's Soil Health Card (all 9 SIH parameters), district agro-climatic profile and **live weather** into a full crop plan: what to sow, water schedule, input economics and risks. | `src/lib/ai.ts`, `/api/recommend` |
+| **1 · Smart crop recommendation engine** | A **3-agent Gemini pipeline** turns a farmer's Soil Health Card (extensive 9 parameters), district agro-climatic profile and **live weather** into a full crop plan: what to sow, water schedule, input economics and risks. | `src/lib/ai.ts`, `/api/recommend` |
 | **2 · Real-time advisory & dry-spell alerts** | Live **Open-Meteo** forecast per district (lat/lon seeded) drives irrigation guidance; **dry-spell / erratic-monsoon warnings are pushed over SMS** — the channel every farmer can receive, even offline. | `WeatherWidget`, `/api/sms`, `SmsInbox` |
 | **3 · Crop-health logging via photo/voice → RSK follow-up** | Upload a leaf photo or ask by voice → **Gemini multimodal** diagnosis in the farmer's language. Cases and scheme applications route to officials at the **Rythu Seva Kendra / agricultural body** for expert approval and callback. | `ChatPanel`, `/api/diagnose`, Government dashboard |
 
